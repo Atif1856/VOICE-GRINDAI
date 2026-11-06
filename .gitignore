@@ -1,0 +1,7 @@
+**/venv/
+**/venvvenv/
+**/__pycache__/
+**/uploads/
+**/dataset/
+.env
+*.pyc

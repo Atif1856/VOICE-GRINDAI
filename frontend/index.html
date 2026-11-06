@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOICE GRIND AI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#080b12;color:#fff;min-height:100vh}
+header{padding:25px 8%;border-bottom:1px solid #202637}
+.logo{font-size:24px;font-weight:800;letter-spacing:2px}
+.logo span{color:#00d9ff}
+main{max-width:850px;margin:65px auto;padding:20px}
+h1{text-align:center;font-size:42px;margin-bottom:15px}
+h1 span{color:#00d9ff}
+.subtitle{text-align:center;color:#9ca8bc;margin-bottom:40px}
+.panel{background:#111725;border:1px solid #26344a;border-radius:18px;padding:30px}
+.upload{border:1px dashed #43536d;padding:25px;border-radius:12px;margin-bottom:20px;text-align:center}
+.upload h3{margin-bottom:10px}
+.upload p{color:#9ca8bc;font-size:13px;margin-bottom:15px}
+input[type=file]{max-width:100%;color:#bdc8d9}
+button{width:100%;padding:16px;background:#00c9ed;color:#061018;border:0;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+#status{margin-top:20px;text-align:center;color:#00d9ff}
+footer{text-align:center;padding:30px;color:#68758b;font-size:12px}
+audio{width:100%;margin-top:15px}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">VOICE GRIND <span>AI</span></div>
+</header>
+<main>
+<h1>Transform Your <span>Voice</span></h1>
+<p class="subtitle">Upload a voice sample and a song to create your voice conversion.</p>
+<div class="panel">
+<div class="upload">
+<h3>01 — Target Voice</h3>
+<p>Upload your own voice recording or a voice you have permission to use.</p>
+<input type="file" id="voice" accept="audio/*">
+</div>
+<div class="upload">
+<h3>02 — Upload Song</h3>
+<p>Upload an original or licensed song.</p>
+<input type="file" id="song" accept="audio/*">
+</div>
+<button id="convert">CONVERT AUDIO</button>
+<p id="status">AI engine is not connected yet.</p>
+<div id="result"></div>
+</div>
+</main>
+<footer>VOICE GRIND AI © 2026</footer>
+<script>
+const voice = document.getElementById("voice");
+const song = document.getElementById("song");
+const status = document.getElementById("status");
+const result = document.getElementById("result");
+const button = document.getElementById("convert");
+
+button.onclick = async () => {
+    if (!voice.files.length || !song.files.length) {
+        status.textContent = "Please upload both audio files.";
+        return;
+    }
+
+    button.disabled = true;
+    status.textContent = "Uploading voice...";
+    result.innerHTML = "";
+
+    try {
+        const voiceData = new FormData();
+        voiceData.append("audio", voice.files[0]);
+
+        const voiceResponse = await fetch("http://127.0.0.1:8000/upload", {
+            method: "POST",
+            body: voiceData
+        });
+
+        if (!voiceResponse.ok) throw new Error("Voice upload failed");
+
+        const voiceResult = await voiceResponse.json();
+
+        status.textContent = "Uploading song...";
+
+        const songData = new FormData();
+        songData.append("audio", song.files[0]);
+
+        const songResponse = await fetch("http://127.0.0.1:8000/upload", {
+            method: "POST",
+            body: songData
+        });
+
+        if (!songResponse.ok) throw new Error("Song upload failed");
+
+        const songResult = await songResponse.json();
+
+        status.textContent = "Both files uploaded successfully. AI engine is not connected yet.";
+
+    } catch (error) {
+        status.textContent = "Error: " + error.message;
+    } finally {
+        button.disabled = false;
+    }
+};
+</script>
+</body>
+</html>
